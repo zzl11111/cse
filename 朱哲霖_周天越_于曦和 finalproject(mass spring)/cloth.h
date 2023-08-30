@@ -1,0 +1,59 @@
+#pragma once
+#ifndef CLOTH_H
+#define CLOTH_H
+#include "GL/glew.h"
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <vector>
+enum Direction {
+	WEST = 0, NORTH_WEST, NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST
+};
+enum Spring_Type {
+	STRUCTUAL = 0, SHEAR, BENDING
+};
+class Cloth {
+public:
+	Cloth();//create a default cloth
+	Cloth(const int x, const int y, const int width, const int length);//create a cloth with resolution x,y and width length accordingly
+	void render(GLFWwindow* window);
+	void updateSimulation(float dt, GLFWwindow* window);
+	void Initialize_Cloth();
+	//calculate the force and update
+	void calculate_force(GLFWwindow* window);
+	void ForwardEulerIntergration(float dt);
+	void verletIntergration(float dt, int n_iter);
+	int GetId(int id, int dir);
+	glm::vec3 GetSpringForce(int id1, int id2, int spring_type);
+	void Runge_Kutta(float dt);
+private:
+	float begintime;
+	bool Play = false;
+	float stiffness = 800;
+	float damping = 0.9960;
+	//the cloth factor
+	glm::vec3 gravity = glm::vec3(0, -9.8f, 0.0f);
+	int width, length;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> velocitys;
+	std::vector<glm::vec3> accelerations;
+	std::vector<glm::vec3> forces;
+
+	//x,v,a,f
+	std::vector<glm::vec3> init_position;
+	std::vector<glm::vec3> previous_position;
+	std::vector<glm::vec3> previous_velocitys;
+	std::vector<glm::vec3> previous_accelerations;
+	std::vector<glm::vec3> previous_forces;
+	std::vector<unsigned int> indices;
+	//normals and uvs are for rendering
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec2> uvs;
+	//the mass spring length
+	float structual_rest_length;
+	float shear_rest_length;
+	float bending_rest_length;
+	int res_x, res_y;
+	//bind to the vao,ibo,vbo,nbo,uvbo
+	GLuint VAO, IBO, VBO, NBO, UVBO;
+};
+#endif 
